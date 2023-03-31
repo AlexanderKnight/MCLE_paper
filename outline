@@ -1,0 +1,19 @@
+1) Introduction
+  a) Motivation
+  b) Advantages & Disadvantages
+  c) 
+2) Methods
+  a) Evolution
+  b) Initial Data Generation
+  c) Large Eddy Viscosity Theory
+  d) Monte Carlo Neutrinos
+  e) Tracers
+  f) Domain/Grid Setup
+  g) Ejecta collection/recording systems?
+3) Results
+  a) Particles/Outflow/Ejecta/Tracers
+  b) Computational Cost
+  c) Accuracy?
+  d) Comparison between different EoS/Mass ratios
+  e)
+4) Conclusion
