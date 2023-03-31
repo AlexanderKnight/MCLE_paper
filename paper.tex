@@ -1,0 +1,125 @@
+
+%\documentclass[twocolumn]{article}
+
+\documentclass[%
+twocolumn,
+superscriptaddress,
+nofootinbib,
+ amsmath,amssymb,
+ aps, prd
+]{revtex4-2}
+
+
+%\date{\today}
+
+
+\usepackage{xcolor} % Remove after notes are no longer needed
+\usepackage[normalem]{ulem} % Remove after notes are no longer needed
+\usepackage{lipsum} % Remove after filler text is no longer needed
+\usepackage{soul}
+\usepackage{ulem}
+\newcommand{\francois}[1]{\color{green}{#1}}
+\newcommand{\alex}[1]{\color{red}{#1}}
+\newcommand{\etal}[0]{\textit{et al}}
+
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\graphicspath{{Images/}}
+
+
+\newcommand{\WSU}{\affiliation{Department of Physics \& Astronomy,
+	Washington State University, Pullman, Washington 99164, USA}}
+\newcommand{\UNH}{\affiliation{Department of Physics \& Astronomy, University of New Hampshire, 9 Library Way, Durham NH 03824, USA}}
+\newcommand{\TAPIR}{\affiliation{TAPIR, Walter Burke Institute for Theoretical Physics, MC 350-17, California Institute of Technology, Pasadena, California 91125, USA}}
+\newcommand{\Cornell}{\affiliation{Cornell Center for Astrophysics and Planetary Science, Cornell University, Ithaca, New York, 14853, USA}}
+\newcommand{\MPI}{\affiliation{Max Planck Institute for Gravitational Physics (Albert Einstein Institute), D-14467 Potsdam, Germany}}
+
+\begin{document}
+
+\title{Binary neutron star merger simulations with Monte-Carlo neutrinos and Large-Eddy viscosity}
+\author{Alexander Knight}\UNH
+\author{Francois Foucart}\UNH
+\author{Matthew D. Duez}\WSU
+\author{Lawrence E. Kidder}\Cornell
+\author{Harald P. Pfeiffer}\MPI
+\author{Mark A. Scheel}\TAPIR
+
+\begin{abstract}
+  Abstract here
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+\subsection{Motivation}
+\begin{enumerate}
+  \item Large Eddy Viscosity
+    \begin{itemize}
+      \item Advantages
+        \begin{itemize}
+          \item "A comparison of momentum transport models for numerical relativity" (Duez): https://arxiv.org/abs/2008.05019
+        \end{itemize}
+      \item Limitations
+    \end{itemize}
+  \item Monte Carlo Neutrinos
+    \begin{itemize}
+      \item Advantages
+        \begin{itemize}
+          \item Errors of two-moment scheme of microphysics https://arxiv.org/abs/1806.02349
+        \end{itemize}
+      \item Limitations
+    \end{itemize}
+  \item Tracers?
+\end{enumerate}
+
+\section{Methods}
+\begin{enumerate}
+  \item Initial Data Generation
+  \item Evolution
+    \begin{itemize}
+      \item Standard speil for SpEC, "3+1 formalism.... hybrid finite difference/spectral grids...ect"
+    \end{itemize}
+  \item Monte Carlo Neutrinos
+    \begin{itemize}
+      \item Implementing in SpEC: https://arxiv.org/abs/2103.16588
+      \item "Monte-Carlo neutrino transport in neutron star merger simulations": https://arxiv.org/abs/2008.08089
+    \end{itemize}
+  \item Large Eddy Viscosity
+    \begin{itemize}
+      \item "General-Relativistic Large-Eddy Simulations of Binary Neutron Star Mergers" (Radice) : https://arxiv.org/abs/1703.02046
+    \end{itemize}
+  \item Tracers?
+    \begin{itemize}
+      \item Need paper here (or solid description of what we are doing
+    \end{itemize}
+  \item Domain/Grid Setup
+  \item Ejecta collection/recording systems?
+\end{enumerate}
+
+\section{Results}
+\begin{enumerate}
+  \item Ejecta Comparison
+  \item Shape/Speed/Remanant/etc?
+  \item Comparison to other simualtions (ours or otherwise)
+    \begin{itemize}
+      \item What other runs can we compare against? Are the 'limited' BNS runs just for waveforms?... yes, I think
+      \item I \textit{think} I remember Shibata having some runs with both microphysics and momentum transport
+    \end{itemize}
+\end{enumerate}
+
+\section{Error Analysis}
+\begin{enumerate}
+  \item Finite Difference error
+  \item Stiff vs soft EoS
+  \item Mass Ratio
+\end{enumerate}
+
+\section{Conclusion}
+
+
+\bibliography{mybib}
+\bibliographystyle{ieeetr}
+\end{document}
+
