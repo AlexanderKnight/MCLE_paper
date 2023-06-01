@@ -21,6 +21,8 @@ nofootinbib,
 \newcommand{\francois}[1]{\color{green}{#1}}
 \newcommand{\alex}[1]{\color{red}{#1}}
 \newcommand{\etal}[0]{\textit{et al}}
+\newcommand{\lev}[0]{Large Eddy viscosity}
+\newcommand{\ye}[0]{$Y_e$}
 
 \usepackage{mathtools}
 \usepackage{subcaption}
@@ -52,69 +54,160 @@ nofootinbib,
 
 \maketitle
 
+{\alex Francois,
+
+At the current time, the general (sub)section format is mostly there for structuring, and as such, does not indicate the final product.
+I have added notes to myself and you in the red (per usual), and I appreciate any input on those points.
+}
+
 \section{Introduction}
-\subsection{Motivation}
-\begin{enumerate}
-  \item Large Eddy Viscosity
-    \begin{itemize}
-      \item Advantages
-        \begin{itemize}
-          \item "A comparison of momentum transport models for numerical relativity" (Duez): https://arxiv.org/abs/2008.05019
-        \end{itemize}
-      \item Limitations
-    \end{itemize}
-  \item Monte Carlo Neutrinos
-    \begin{itemize}
-      \item Advantages
-        \begin{itemize}
-          \item Errors of two-moment scheme of microphysics https://arxiv.org/abs/1806.02349
-        \end{itemize}
-      \item Limitations
-    \end{itemize}
-  \item Tracers?
-\end{enumerate}
+Neutrino outflow during a BNS merger cools the remnant, and interacts with the outflow, heating and undergoing a charge current reaction, increasing the electron fraction ($Y_e=\frac{N_p}{N_p+N_n}$).
+Even a small change in \ye can drastically change the kilonova light curve, and as such, we seek to simulate as accurately as possible the neutrino-nucleon interactions that occur during a BNS event.
+Simulating every neutrino is clearly impossible, as solving the multidimensional distribution function $f_\nu(x^i,t,p^i)$ is computationally expensive.
+However, treating the neutrinos as a fluid introduces errors, as they are couple to matter in the dense interiors of the stars, but free-streaming outside, and weakly coupled in transitional areas, with with each area requiring different  assumptions and approximations, and the lines between these areas often unclear.
+Several methods have been used to approximate this behavior, such as the leakage and M1 schemes, however they each have their own limitations and assumptions that can result in additional errors.
+\section{Motivation}
+  \subsection{Large Eddy Viscosity}
+      \subsubsection{Advantages}
+
+         {\alex 
+        Advantages of LE viscosity over alpha viscosity model:
+
+          -Computational Cost
+
+          -Speed
+
+          "A comparison of momentum transport models for numerical relativity" (Duez): https://arxiv.org/abs/2008.05019}
+
+        Current computers lack the computational power to simulate BNS systems containing magnetic fields with resolutions high enough to resolve (magneto)hydrodynamic instabilities that transfer momentum and disperse kinetic energy as heat.
+        While improvements are being made in computer architecture allowing for thousands of cores of parallel processing, the current acceptable order-of-magnitude approximation is to model sub-grid scale effects by introducing additional viscosity.
+        One of the most popular methods is the alpha-viscosity model first created by Shakura and Sunyaev \cite{Shakura_1973}, and later made stable and covariant by Israel and Stewart \cite{Israel_1979}.
+        A more modern addition is the large eddy viscosity (LEV) model by Radice \cite{Radice_2017, Radice_2018}, a general-relativistic extension of the Newtonian large-eddy framework \cite{Miesch_2015}.
+        In previous work of ours \cite{Duez_2020}, we implemented the large eddy viscous model into SpEC \cite{spec}, added a term that guarantees the stress-energy tensor is a spatial tensor in the fluid frame, and compared the large eddy viscosity model to the Israel-Stewart viscosity (ISV) model on a differentially rotating neutron star in both axisymmetry and 3D.
+        We found them to be reasonably in agreement with each other, but found a notable reduction in computational cost for the LEV model and corresponding increase in computational speed. 
+        {\alex Probably due to the lesser computational cost, but...}
+
+
+      \subsubsection{Limitations}
+      {\alex
+        Disadvantages of LE visc. compared to alpha visc:
+
+          -Not technically "correct", mathematical approximation that happens to work out right
+
+          -Does not approximate MHD field outside the remnant (neither does the alpha visc., but being thorough)
+
+          This will not be a separate section, but instead a single section with the above.
+          }
+       
+       While the LEV method does offer comparable angular momentum distribution at similar timescales, there was a distinct radial heating profile difference between the two viscosity methods.
+       We do not know the 'correct' heating profile, and so the two methods are equally viable, but the difference should be noted.
+       Additionally, as stated in \cite{Duez_2020} and originally in \cite{Radice_2017}, the closure condition is covariant to spatial coordinate changes, but not general spacetime coordinate transformations, and may have errors such as coordinate dependant artifacts.
+       Finally, while the LEV and ISV methods are acceptable (within the bounds of current known constraints) to approximate the effects of a magnetic field inside the stars, remnant, and disk, they fail to adequately mimic these effects in the low density matter outside of these areas.
+
+  \subsection{Monte Carlo Neutrinos}
+      \subsubsection{Advantages}
+      {\alex
+
+        Advantages of using MC neutrinos as opposed to M1 or leakage:
+
+          -More accurate with similar computational resources
+
+          -Takes into account neutrino heating (leakage doesn't, or not accurately enough)
+
+          -Converges to consistent point (M1 converges to different points depending on closure)
+
+          Errors of two-moment scheme of microphysics https://arxiv.org/abs/1806.02349
+          }
+
+          To simulate microphysics, we utilize Monte Carlo neutrino transport which has been previously implemented and tested in SpEC \cite{Foucart_2020, Foucart_2021}.
+          We have used this method to determine the limitations and estimate sources of error for a gray two-moment scheme with M1 closure, and used Monte Carlo to close that algorithm with improved results.
+
+          {\alex Leaving this for later, as I need to do more research on MC}
+
+          
+
+
+      \subsubsection{Limitations}
+      {\alex
+
+        -Does not scale well with additional resources (double the cores, don't get double the results)
+
+        -Non-deterministic (?) (If we start two simulations from the same init files, we would have different neutrino packages moving around) (Not even sure if that is a problem. I guess it makes it harder to verify/rerun)
+
+        Same as last note, leaving for later}
+
+  \subsection{Tracers?}
+    {\alex (I don't know if we need this section...)}
 
 \section{Methods}
-\begin{enumerate}
-  \item Initial Data Generation
-  \item Evolution
-    \begin{itemize}
-      \item Standard speil for SpEC, "3+1 formalism.... hybrid finite difference/spectral grids...ect"
-    \end{itemize}
-  \item Monte Carlo Neutrinos
-    \begin{itemize}
-      \item Implementing in SpEC: https://arxiv.org/abs/2103.16588
-      \item "Monte-Carlo neutrino transport in neutron star merger simulations": https://arxiv.org/abs/2008.08089
-    \end{itemize}
-  \item Large Eddy Viscosity
-    \begin{itemize}
-      \item "General-Relativistic Large-Eddy Simulations of Binary Neutron Star Mergers" (Radice) : https://arxiv.org/abs/1703.02046
-    \end{itemize}
-  \item Tracers?
-    \begin{itemize}
-      \item Need paper here (or solid description of what we are doing
-    \end{itemize}
-  \item Domain/Grid Setup
-  \item Ejecta collection/recording systems?
-\end{enumerate}
+  \subsection{Initial Data Generation}
+\begin{table*}[t]
+  \centering
+  \begin{tabular}{||c||c|c||c|c|c|c|c|c|c|c|c||}
+    \hline
+    EoS & $q$ & $M_1 (M_\odot)$ Baryon & $M_2 (M_\odot)$ Baryon& $R_1$ (code) & $R_2$ (code) & $d$ (code) & $\Omega_0$ (code) & $\Lambda_1$ & $\Lambda_2$ & $\tilde{\Lambda}$\\
+    \hline \hline
+    DD2 & 1.05 & 1.52567 & 1.4467 & 7.11445 & 7.14923 & 29.9989 & 0.00904514 & N/A & N/A & N/A\\
+    \hline
+    DD2 & 1.2 & 1.64444& 1.34615 & 7.05346 & 7.18723 & 29.9993 & 0.0090802 & N/A & N/A & N/A\\
+    \hline
+    \hline
+    SFHo & 1.05 & 1.54044 & 1.45942 & 6.25985 & 6.32956 & 29.9993  & 0.00900298 & N/A & N/A & N/A\\
+    \hline
+    SFHo & 1.2 & 1.66292 & 1.35632 & 6.14231 & 6.41025 & 30.0001 & 0.00902853 & N/A & N/A & N/A \\
+    \hline
+  \end{tabular}
+
+  \caption{
+    {\alex Numbers are still in code units (baryonic mass too), but I will shift them over soon. I just wanted them all in once place before I did all the calculations. And I need to do the $\Lambda$ calculations.}
+}
+  \label{tab:bns_parameters}
+\end{table*}
+
+  We simulated 5 systems, with mass ratios $q=1.05$ and $q=1.2$, using the DD2 \cite{Hempel_2012} and SFHo \cite{Steiner_2013} equations of state (EoS).
+  We let the chirp mass of our system match GW170817, giving us the masses and radii we see in table \ref{tab:bns_parameters}.
+  Our systems were iteratively generated from initial parameters using our SPELLS code \cite{Pfeiffer_2003}.
+  Our system domain is a hybrid finite difference-spectral grid, to solve the relativistic hydrodynamical equations and Einstein's equations, respectively.
+  The finite difference grid starts as a bar-shaped prism, with (385, 193, 193) grid points in the x-, y-, and z-axis respectively, and lengths of {\alex code units} 61.44, 30.72, 30.72 {\alex taken from the SFHo q=1.2 Lev1 simulation. Will check others}.
+  
+
+  \subsection{Evolution}
+      Our simulations were run using the Spectral Einstein Code (SpEC) \cite{spec}.
+      SpEC evolves Einstein's equations using the Generalized Harmonic formalism {\alex cite} with an adaptive mesh refinement on a pseudospectral grid.
+      The general relativistic hydrodynamical equations are evolved on a separate grid.
+      {\alex Standard stuff for SpEC, "3+1 formalism.... hybrid finite difference/spectral grids...ect."}
+      
+  \subsection{Monte Carlo Neutrinos}
+      Implementing in SpEC: https://arxiv.org/abs/2103.16588
+      "Monte-Carlo neutrino transport in neutron star merger simulations": https://arxiv.org/abs/2008.08089
+      The original explanations of the Monte-Carlo neutrino transport and its implementation in SpEC are well explained in 
+    \subsection{Large Eddy Viscosity}
+    It is currently unfeasible to simulate BNS merger systems with sufficient magnetohydrodynamical effects to properly resolve the Kelvin-Helmholtz instability (KHI) or magnetorotational instability (MRI).
+    However, these are critical effects in a merger event, with the KHI occurring right at the merger event between the two NS, and the MRI distributing the angular momentum and heating the remnant and disk.
+    As such, it has become common practice to approximate these effects by means of an artificial viscosity.
+    Our method, originally developed by Radice {\alex cite}, and adjusted and implemented in SpEC {\alex cite}, uses the 
+      We follow the original derivation for \lev from Radice (2018) \cite{Radice_2018} and the further refinement and stability adjustments required for SpEC from Duez \etal (2020) \cite{Duez_2020}.
+
+
+
+    
+
+  \subsection{Tracers?}
+      Need paper here (or solid description of what we are doing
+  \subsection{Domain/Grid Setup}
+  \subsection{Ejecta collection/recording systems?}
 
 \section{Results}
-\begin{enumerate}
-  \item Ejecta Comparison
-  \item Shape/Speed/Remanant/etc?
-  \item Comparison to other simualtions (ours or otherwise)
-    \begin{itemize}
-      \item What other runs can we compare against? Are the 'limited' BNS runs just for waveforms?... yes, I think
-      \item I \textit{think} I remember Shibata having some runs with both microphysics and momentum transport
-    \end{itemize}
-\end{enumerate}
+  \subsection{Ejecta Comparison}
+  \subsection{Shape/Speed/Remnant/etc?}
+  \subsection{Comparison to other simulations (ours or otherwise)}
+      What other runs can we compare against? Are the 'limited' BNS runs just for waveforms?... yes, I think
+      I \textit{think} I remember Shibata having some runs with both microphysics and momentum transport
 
 \section{Error Analysis}
-\begin{enumerate}
-  \item Finite Difference error
-  \item Stiff vs soft EoS
-  \item Mass Ratio
-\end{enumerate}
+  \subsection{Finite Difference error}
+  \subsection{Stiff vs soft EoS}
+  \subsection{Mass Ratio}
 
 \section{Conclusion}
 
