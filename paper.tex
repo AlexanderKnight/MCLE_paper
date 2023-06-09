@@ -22,7 +22,7 @@ nofootinbib,
 \newcommand{\alex}[1]{\color{red}{#1}}
 \newcommand{\etal}[0]{\textit{et al}}
 \newcommand{\lev}[0]{Large Eddy viscosity}
-\newcommand{\ye}[0]{$Y_e$}
+\newcommand{\ye}[0]{$Y_e$ }
 
 \usepackage{mathtools}
 \usepackage{subcaption}
@@ -61,11 +61,23 @@ I have added notes to myself and you in the red (per usual), and I appreciate an
 }
 
 \section{Introduction}
-Neutrino outflow during a BNS merger cools the remnant, and interacts with the outflow, heating and undergoing a charge current reaction, increasing the electron fraction ($Y_e=\frac{N_p}{N_p+N_n}$).
-Even a small change in \ye can drastically change the kilonova light curve, and as such, we seek to simulate as accurately as possible the neutrino-nucleon interactions that occur during a BNS event.
-Simulating every neutrino is clearly impossible, as solving the multidimensional distribution function $f_\nu(x^i,t,p^i)$ is computationally expensive.
-However, treating the neutrinos as a fluid introduces errors, as they are couple to matter in the dense interiors of the stars, but free-streaming outside, and weakly coupled in transitional areas, with with each area requiring different  assumptions and approximations, and the lines between these areas often unclear.
+During a binary neutron star (BNS), dense, neutron-rich matter up to $\approx5\%M_\odot$ {\alex I think this may have been lower... I need to look at Tia's talk again!} can be ejected. 
+Initial contact can result in a Kelvin-Helmholtz instability (KHI), distributing angular momentum and generating heat. 
+The strong magnetic field also interacts with the remnant and disk quite noticeably as a magnetorotational instability (MRI), causing further angular momentum distribution and heating.
+However, with current computational limits, most code bases and clusters have resolutions of the order of $10^2$m, while these instabilities operate on length scales of the order of $10^1$, resulting in an inability to resolve these instabilities for BNS mergers
+The introduction of a viscosity to approximate the effects has been done {\alex cite Shibata's work}, and has been quite successful, but it does introduce additional computational load on an already expensive simulation.
+As a further critical interaction, neutrinos caught in the dense matter of the remnant, disk, or ejecta can transfer energy from the remnant to the ejecta, cooling the remnant and increasing the electron fraction ($Y_e=\frac{N_p}{N_p+N_n}$), which can drastically affect the kilonova signal emitted.
+%Neutrino outflows during merger cools the remnant, and interacts with the outflow, heating and undergoing a charge current reaction, increasing the \ye .
+Even a small change in \ye can drastically change the kilonova light curve, and as such, it is ideal to simulate as accurately as possible the neutrino-nucleon interactions that occur during a BNS event.
+Simulating every neutrino is clearly impossible, and solving the multidimensional distribution function $f_\nu(x^i,t,p^i)$ is unfeasible..
+Attempting to circumvent this issue by treating the neutrinos as a fluid introduces additional errors and problems, as they are strongly coupled to matter in the dense interiors of the stars, but free-streaming outside, and weakly coupled in transitional areas, with with each area requiring different assumptions and treatments, and the separation between these areas are often unclear.
 Several methods have been used to approximate this behavior, such as the leakage and M1 schemes, however they each have their own limitations and assumptions that can result in additional errors.
+
+In this paper, we will show a large-eddy viscosity method to approximate the effects of a magnetic field, and Monte-Carlo radiation transport to evolve the neutrinos of the systems.
+Our simulations consist of four systems, with two equations of state, each at two mass ratios.
+Our system run for {\alex going to adjust once they finish!} milliseconds after merger, or until a late collapse to a black hold occurs. 
+We will compare the ejecta from these simulations to previous work of ours involving system collapsing to black holes shortly after merger, as well as against other simulations utilizing different viscous and microphysics methods.
+
 \section{Motivation}
   \subsection{Large Eddy Viscosity}
       \subsubsection{Advantages}
@@ -102,7 +114,8 @@ Several methods have been used to approximate this behavior, such as the leakage
        While the LEV method does offer comparable angular momentum distribution at similar timescales, there was a distinct radial heating profile difference between the two viscosity methods.
        We do not know the 'correct' heating profile, and so the two methods are equally viable, but the difference should be noted.
        Additionally, as stated in \cite{Duez_2020} and originally in \cite{Radice_2017}, the closure condition is covariant to spatial coordinate changes, but not general spacetime coordinate transformations, and may have errors such as coordinate dependant artifacts.
-       Finally, while the LEV and ISV methods are acceptable (within the bounds of current known constraints) to approximate the effects of a magnetic field inside the stars, remnant, and disk, they fail to adequately mimic these effects in the low density matter outside of these areas.
+       The LEV and ISV methods are acceptable (within the bounds of current known constraints) to approximate the effects of a magnetic field inside the stars, remnant, and disk, such as the generation of the Kelvin-Helmholz instability (KHI) as the stars initially merge, and the magnetorotational instability (MRI) that distributes angular momentum through the remnant's disk.
+       However, both viscous models fail to adequately mimic the electrodynamic effects in the low density matter outside of these areas {\alex cite}.
 
   \subsection{Monte Carlo Neutrinos}
       \subsubsection{Advantages}
@@ -119,13 +132,13 @@ Several methods have been used to approximate this behavior, such as the leakage
           Errors of two-moment scheme of microphysics https://arxiv.org/abs/1806.02349
           }
 
-          To simulate microphysics, we utilize Monte Carlo neutrino transport which has been previously implemented and tested in SpEC \cite{Foucart_2020, Foucart_2021}.
-          We have used this method to determine the limitations and estimate sources of error for a gray two-moment scheme with M1 closure, and used Monte Carlo to close that algorithm with improved results.
-
-          {\alex Leaving this for later, as I need to do more research on MC}
-
-          
-
+          We use here a Monte Carlo (MC) radiation transport for the neutrinos, implemented in SpEC \cite{Foucart_2021}, and utilized in several simulations \cite{Foucart_2020,Foucart_2023} with good effect.
+          Monte Carlo radiation transport has been show to have several advantages over other common transport methods such as the leakage scheme and M1 two-moment scheme when used in SpEC \cite{Foucart_201801,Foucart_201806}.
+          From \cite{Foucart_201806}, the M1 two-moment scheme can be very inaccurate in the low-density polar regions, which drastically effects the EM counterparts of neutron star mergers, and has a 10\% inaccuracy for the neutrino's average energy in the equatorial plane.
+          Combined, this indicates the absorption rate may be off by a factor of ~2$\times$.
+          Additionally, it was found that the convergence of M1 was closure dependant, where as the Monte Carlo transport converged to the distribution equation.
+          While newer leakage schemes have added terms to take into account neutrino cooling of the remnant {\alex cite} and heating of the ejecta {\alex cite}, this is an order of magnitude estimate {\alex cite}, and does not take into account lepton number transfer, nor the transitional boundary between dense neutron matter and the relatively empty space, where neutrinos transfer from an area highly coupled with the fluid to free-streaming, and back if/when they interact with ejected matter.
+          Foucart \etal (2020) \cite{Foucart_2020} found that the Monte Carlo radiation transport method to be cheaper than M1 in term computational cost for similar error, and sufficiently cheap to allow for additional neutrino physics in future simulations.
 
       \subsubsection{Limitations}
       {\alex
@@ -135,6 +148,14 @@ Several methods have been used to approximate this behavior, such as the leakage
         -Non-deterministic (?) (If we start two simulations from the same init files, we would have different neutrino packages moving around) (Not even sure if that is a problem. I guess it makes it harder to verify/rerun)
 
         Same as last note, leaving for later}
+
+        As noted in \cite{Foucart_2021}, Monte Carlo methods have limits in regard to the type of simulations where they would be of benefit.
+        Due to the nature of Monte Carlo, the simulation is not deterministic, and the distribution function in phase space is only known up to the sampling noise.
+        Additionally, the sampling noise converges slowly, as $n_p^{-1/2}$, resulting in parts of the domain becoming prohibitively expensive to simulate and potentially unstable.
+        In these dense region, the neutrinos strongly couple with the fluid, giving a mean free path shorter than distance traveled in one time step, resulting a high number of absorptions, emissions, and scattering.
+        In previous works \cite{Foucart_2020,Foucart_201806,Foucart_201801}, approximations have been made to utilize the Monte Carlo methods where possible, but the dense regions were handle by different methods, such as M1.
+        Here, as in \cite{Foucart_2023}, we utilize a method inspired by implicit Monte Carlo, described in more detail in section \ref{sec:methods_MC}.
+
 
   \subsection{Tracers?}
     {\alex (I don't know if we need this section...)}
@@ -164,29 +185,55 @@ Several methods have been used to approximate this behavior, such as the leakage
   \label{tab:bns_parameters}
 \end{table*}
 
-  We simulated 5 systems, with mass ratios $q=1.05$ and $q=1.2$, using the DD2 \cite{Hempel_2012} and SFHo \cite{Steiner_2013} equations of state (EoS).
-  We let the chirp mass of our system match GW170817, giving us the masses and radii we see in table \ref{tab:bns_parameters}.
-  Our systems were iteratively generated from initial parameters using our SPELLS code \cite{Pfeiffer_2003}.
+  We simulated 4 systems, with mass ratios $q=1.05$ and $q=1.2$, using the DD2 \cite{Hempel_2012} and SFHo \cite{Steiner_2013} equations of state (EoS).
+  The chirp mass of our system matches GW170817, giving us the masses and radii we see in table \ref{tab:bns_parameters}.
+  Our systems were generated from initial parameters using our SPELLS code \cite{Pfeiffer_2003}.
+  We then iteratively adjust the radial and orbital velocity to achieve orbits with eccentricity lower than 2\% {\alex need to check}.
   Our system domain is a hybrid finite difference-spectral grid, to solve the relativistic hydrodynamical equations and Einstein's equations, respectively.
-  The finite difference grid starts as a bar-shaped prism, with (385, 193, 193) grid points in the x-, y-, and z-axis respectively, and lengths of {\alex code units} 61.44, 30.72, 30.72 {\alex taken from the SFHo q=1.2 Lev1 simulation. Will check others}.
-  
+  The finite difference grid starts as a rectangular, bar-shaped Cartesian grid, with (385, 193, 193) grid points in the x-, y-, and z-axis respectively, and lengths of {\alex code units} 61.44, 30.72, 30.72 {\alex taken from the SFHo q=1.2 Lev1 simulation. Will check others}.
+  After merger, when dynamical ejecta approaches the boundary, the domain is redrawn to be a nested grid of 4 cubes of decreasing resolution from center outward, with $257^3$ grid points over dimensions {\alex code units} $59.5^3$, $119.1^3$, $238.2^3$, and $476.4^3$, from center grid to outermost grid.
+{\alex GR domain incoming, I just need to look at my notes again.}  
 
   \subsection{Evolution}
-      Our simulations were run using the Spectral Einstein Code (SpEC) \cite{spec}.
-      SpEC evolves Einstein's equations using the Generalized Harmonic formalism {\alex cite} with an adaptive mesh refinement on a pseudospectral grid.
-      The general relativistic hydrodynamical equations are evolved on a separate grid.
-      {\alex Standard stuff for SpEC, "3+1 formalism.... hybrid finite difference/spectral grids...ect."}
+      Our simulations were run using the Spectral Einstein Code (SpEC), which evolves Einstein's equations using the Generalized Harmonic formalism {\alex cite} with an adaptive mesh refinement on a pseudospectral grid.
+      {\alex more 'default' spec stuff, focusing on things that are special to this simulation before I redo this basically from my last paper}
+      {\alex need to get the number of orbits during inspiral. Not as easy as when we had waveforms!}
+      Each simulation was started without LEV and MC neutrinos for the first few initial orbits, as previous work {\alex need a citation here, or just good logic} has show both of these to have little to no measurable effect in the early inspiral.
+      Once the stars orbited close enough that tidal forces were non-negligible, LEV was introduced and continued for the rest of the simulation.
+      At merger (which we roughly define as the densest point coming to rest in the center of our system), we implement both MC neutrinos and tracers, which continue until simulation end.
+      Each simulation was allowed to run $\approx5$ ms past merger, or until it had collapsed to a black hole, and all dynamical movement had ceased {\alex I am assuming that last part. No reason to run longer if things aren't interesting}.
       
   \subsection{Monte Carlo Neutrinos}
+  \label{sec:methods_MC}
+  {\alex
       Implementing in SpEC: https://arxiv.org/abs/2103.16588
       "Monte-Carlo neutrino transport in neutron star merger simulations": https://arxiv.org/abs/2008.08089
-      The original explanations of the Monte-Carlo neutrino transport and its implementation in SpEC are well explained in 
+  }
+      The original explanations of the Monte-Carlo neutrino transport method, its implementation in SpEC, and simulations using it have been well explained \cite{Foucart_201806,Foucart_201801,Foucart_2020,Foucart_2021,Foucart_2023}, but we will give a sufficient explanation here for the reader.
+      Neutrinos are approximated by packets that sample the neutrino distribution function, thus letting us use Boltzmann 's equation of radiation transport.
+      We simulate three species of neutrinos: electron neutrinos ($\nu_e$), electron antineutrinos ($\overline{\nu}_e$), and an umbrella species containing the muon and tau neutrinos and antineutrinos.
+      These packets are emitted isotropically, sampling from the emission spectrum, and can be absorbed or scatted, depending on absorption and scattering opacities.
+      We evolved the neutrinos along geodesics, using tables generated by NuLib {\alex Get citation:0912.2393} to determine reaction rates, scattering and absorption opacities, pair annihilation, and nucleon-nucleon Bremsstrahlung. 
+      We do not account for pair process for electron neutrinos, flavor oscillation, and inelastic scattering.
+      We will draw particular attention to our treatment of the Monte-Carlo method for the densest and hottest regions, as several of our simulations sustained for several milliseconds before collapsing to a black hole, and as such, the neutrino treatment here would have a non-negligible impact.
+      In previous work, the densest region was managed by M1 or similar methods, but we use the method from \cite{Foucart_2023}, inspired by implicit Monte-Carlo algorithms \cite{Fleck_1971}.
+      There are two approximations made by this method.
+      First, in regions with high scatter opacity ($\kappa_s\Delta t \geq 3$), individual scattering events are forgone for a single movement of the packet determined by the solution to a diffusion equation conforming to a limit of many individual scattering interactions {\alex Need to grab the citations from your paper here}.
+      Second, in regions with large absorption ($\kappa_a\Delta t \geq 0.5$), the absorption opacity is reduced, while keeping $\kappa_s+\kappa_a$ (total opacity) and $\eta/\kappa_a$ (total energy density) constant.
+      This avoids stiff coupling of the neutrinos with the fluid, and reducing the number of emission and absorptions {\alex absorption has ceased to look like an English word} occurring during each time step.
+      When we implement neutrinos at merger, we begin by having $4\times10^7$ neutrinos per species, and increase to $10^8$ after the transition to a square domain. 
+      With the increase computational cost of simulating significantly more grid points, the computational cost of increasing the packet count is negligible, and has the added benefit of reducing the noise due to too few neutrino packets in dense matter.
+      We found the stability of our simulation to be drastically reduced if the packet count was maintained after the transition to a square grid.
+      {\alex Will need more writing here about how the neutrinos interact with the ejecta, but I think that will be told by the tracers. Speaking of which, I need more tracer stuff here too.}
+
     \subsection{Large Eddy Viscosity}
     It is currently unfeasible to simulate BNS merger systems with sufficient magnetohydrodynamical effects to properly resolve the Kelvin-Helmholtz instability (KHI) or magnetorotational instability (MRI).
     However, these are critical effects in a merger event, with the KHI occurring right at the merger event between the two NS, and the MRI distributing the angular momentum and heating the remnant and disk.
     As such, it has become common practice to approximate these effects by means of an artificial viscosity.
     Our method, originally developed by Radice {\alex cite}, and adjusted and implemented in SpEC {\alex cite}, uses the 
       We follow the original derivation for \lev from Radice (2018) \cite{Radice_2018} and the further refinement and stability adjustments required for SpEC from Duez \etal (2020) \cite{Duez_2020}.
+
+      {\alex Going through the derivation in 2008.05019 to make sure I understand it properly. I will put it in here when I do.}
 
 
 
